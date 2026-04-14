@@ -172,4 +172,31 @@ describe('VitalsOverview', () => {
     expect(screen.getByRole('tab', { name: /temp/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /r\. rate/i })).toBeInTheDocument();
   });
+
+  it('renders without crashing when patient identifiers are missing coding metadata', async () => {
+    mockUseVitalsAndBiometrics.mockReturnValue({
+      data: formattedVitals,
+    } as ReturnType<typeof useVitalsAndBiometrics>);
+
+    const patientWithIncompleteIdentifierType = {
+      ...mockPatient,
+      identifier: [
+        {
+          value: '12345',
+        },
+      ],
+    } as fhir.Patient;
+
+    renderWithSwr(
+      <VitalsOverview
+        {...testProps}
+        patient={patientWithIncompleteIdentifierType}
+        patientUuid={patientWithIncompleteIdentifierType.id}
+      />,
+    );
+
+    await waitForLoadingToFinish();
+
+    expect(screen.getByRole('table', { name: /vitals/i })).toBeInTheDocument();
+  });
 });

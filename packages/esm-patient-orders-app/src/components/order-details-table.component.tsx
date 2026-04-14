@@ -33,6 +33,7 @@ import {
   EmptyState,
   ErrorState,
   getDrugOrderByUuid,
+  getIncludedPatientIdentifierValues,
   invalidateVisitByUuid,
   PatientChartPagination,
   type FulfillerStatus,
@@ -301,17 +302,12 @@ const OrderDetailsTable: React.FC<OrderDetailsProps> = ({
       }
     };
 
-    const identifiers =
-      patient?.identifier?.filter(
-        (identifier) => !excludePatientIdentifierCodeTypes?.uuids?.includes(identifier.type.coding[0].code),
-      ) ?? [];
-
     return {
       name: patient ? getPatientName(patient) : '',
       age: age(patient?.birthDate),
       gender: getGender(patient?.gender),
       location: patient?.address?.[0].city,
-      identifiers: identifiers?.length ? identifiers.map(({ value }) => value) : [],
+      identifiers: getIncludedPatientIdentifierValues(patient, excludePatientIdentifierCodeTypes?.uuids),
     };
   }, [patient, excludePatientIdentifierCodeTypes?.uuids]);
 
